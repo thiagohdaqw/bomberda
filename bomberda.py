@@ -41,46 +41,44 @@ def generate_problem(map_path):
     problem_path = map_path + ".pddl" # "/tmp/mapa.pddl"
     
     positions = []
-    player_name = "bomberman"
 
     with open(map_path) as map_file:
-        _map = map_file.read()
-        lines = _map.splitlines()
-        y_len = len(lines)
-        x_len = len(lines[0])
+        lines = map_file.read().splitlines()
+        width = max(len(line) for line in lines)
+        height = len(lines)
 
-        for i in range(1, x_len+1):
-            positions.append(f"x{i}")
+        for i in range(width):
+            positions.append(f"x{i+1}")
         
-        for j in range(1, y_len+1):
-            positions.append(f"y{j}")
+        for j in range(height):
+            positions.append(f"y{j+1}")
 
-        inc_x, inc_y = generate_incs(y_len, x_len)
-        dec_x, dec_y = generate_decs(y_len, x_len)
+        inc_x, inc_y = generate_incs(height, width)
+        dec_x, dec_y = generate_decs(height, width)
         walls = []
         player = ""
         goal = ""
-        has_enemy = False
+        treasure = ""
         enemy = ""
 
-        for line in range(0, y_len):
-            for column in range(0, x_len):
-                if lines[line][column] == WALL:
-                    walls.append(f"(wall x{column+1} y{line+1})")
-                elif lines[line][column] == PLAYER:
-                    player = f"(at {player_name} x{column+1} y{line+1})"
-                elif lines[line][column] == TREASURE:
-                    goal = f"(at {player_name} x{column+1} y{line+1})"
-                elif lines[line][column] == MONSTER:
-                    enemy = f"(at enemy x{column+1} y{line+1})"
-                    has_enemy = True
-        if has_enemy:
-            enemy = f"{enemy} (is-enemy enemy) (has-enemy)"
+        for row, line in enumerate(lines):
+            for column, char in enumerate(line):
+                if char == WALL:
+                    walls.append(f"(wall x{column+1} y{row+1})")
+                elif char == PLAYER:
+                    player = f"(player-at x{column+1} y{row+1})"
+                elif char == TREASURE:
+                    treasure = "(has-treasure)"
+                    goal = f"(player-at x{column+1} y{row+1})"
+                elif char == MONSTER:
+                    enemy = f"(enemy-at x{column+1} y{row+1}) (is-enemy enemy) (has-enemy)"
+
+        if not goal:
+            goal = "(win)"
 
     output_data = f"""(define (problem bomberdaproblem)
         (:domain bomberda)
         (:objects {" ".join(positions)} - position
-                    {player_name} enemy - agent
                     t0 t1 t2 t3 - timer)
         (:init 
             {" ".join(walls)}
@@ -90,6 +88,7 @@ def generate_problem(map_path):
             {dec_y}
             {player}
             {enemy}
+            {treasure}
             (is-zero-timer t0) (is-max-timer t3)
             (dec-timer t3 t2) (dec-timer t2 t1) (dec-timer t1 t0)
         )

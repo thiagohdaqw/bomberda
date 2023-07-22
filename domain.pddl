@@ -1,14 +1,14 @@
 (define (domain bomberda)
     (:requirements :strips)
     (:types
-        agent position timer
+        position timer
     )
     (:predicates
         (inc ?a ?b - position)
         (dec ?a ?b - position)
-        (at ?a - agent ?x ?y - position)
+        (enemy-at ?x ?y - position)
+        (player-at ?x ?y - position)
         (wall ?x ?y)
-        (is-enemy ?a)
         (has-enemy)
         (has-action)
         (check-is-dead)
@@ -26,18 +26,34 @@
         (is-zero-timer ?t - timer)
         (dec-timer ?a ?b - timer)
         (check-bomb)
+        (has-treasure)
+        (win)
+        (check-end-turn)
     )
 
+    (:action FINALIZAR_TURNO
+        :parameters ()
+        :precondition (check-end-turn)
+        :effect (and
+            (not (check-end-turn))
+            (not (has-action))
+            (forall (?x ?y - position)
+                (when (and (not (has-treasure)) (not (has-enemy)) (player-at ?x ?y) (enemy-at ?x ?y)) (win))
+            )
+        )
+    )
+    
+
     (:action SOLTARBOMBA
-        :parameters (?px ?py - position ?player - agent ?t - timer)
-        :precondition (and (not (has-bomb)) (not (is-enemy ?player)) (at ?player ?px ?py) (is-max-timer ?t))
+        :parameters (?px ?py - position ?t - timer)
+        :precondition (and (not (has-action)) (not (has-bomb)) (player-at ?px ?py) (is-max-timer ?t))
         :effect (and (bomb-at ?px ?py) (current-bomb-timer ?t) (has-bomb))
     )
 
     (:action PASSAR_TURNO_BOMBA
         :parameters ()
         :precondition (and (check-bomb) (not (has-bomb)))
-        :effect (and (not (check-bomb)) (not (has-action)))
+        :effect (and (not (check-bomb)) (check-end-turn))
     )
     
 
@@ -47,28 +63,28 @@
         :effect (and
                     (not (check-bomb))
                     (not (current-bomb-timer ?t))
-                    (not (has-action))
+                    (check-end-turn)
                     (current-bomb-timer ?n)
                 )
     )
 
     (:action EXPLODIR_BOMBA
-        :parameters (?t ?n - timer ?player ?enemy - agent)
-        :precondition (and (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (is-zero-timer ?n) (is-enemy ?enemy) (not (is-enemy ?player)))
+        :parameters (?t ?n - timer)
+        :precondition (and (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (is-zero-timer ?n))
         :effect (and 
                     (not (bomb-at ?bx ?by))
                     (not (check-bomb))
                     (not (has-bomb))
-                    (not (has-action))
+                    (check-end-turn)
                     (not (current-bomb-timer ?t))
                     (forall (?x ?y ?w - position) 
                         (when
                             (and
                                 (bomb-at ?x ?y)
                                 (or 
-                                    (at ?enemy ?x ?w)
-                                    (at ?enemy ?w ?y)
-                                    (at ?enemy ?x ?y)
+                                    (enemy-at ?x ?w)
+                                    (enemy-at ?w ?y)
+                                    (enemy-at ?x ?y)
                                 )
                                 (or
                                     (inc ?x ?w)
@@ -84,9 +100,9 @@
                             (and
                                 (bomb-at ?x ?y)
                                 (or 
-                                    (at ?player ?x ?w)
-                                    (at ?player ?w ?y)
-                                    (at ?player ?x ?y)
+                                    (player-at ?x ?w)
+                                    (player-at ?w ?y)
+                                    (player-at ?x ?y)
                                 )
                                 (or
                                     (inc ?x ?w)
@@ -103,11 +119,11 @@
     
 
     (:action CHECK_DEAD
-        :parameters (?px ?py ?ex ?ey - position ?player ?enemy - agent)
-        :precondition (and (has-enemy) (check-is-dead) (is-enemy ?enemy) (not (is-enemy ?player)) (at ?player ?px ?py) (at ?enemy ?ex ?ey))
+        :parameters (?px ?py ?ex ?ey - position)
+        :precondition (and (has-enemy) (check-is-dead) (player-at ?px ?py) (enemy-at ?ex ?ey))
         :effect (and
             (when
-                (and (at ?player ?px ?py) (at ?enemy ?px ?py))
+                (and (player-at ?px ?py) (enemy-at ?px ?py))
                 (is-dead))
             (not (check-is-dead))
             (when (not (check-from-enemy)) (enemy-move))
@@ -122,16 +138,16 @@
     )
 
     (:action CIMA
-        :parameters (?player - agent)
-        :precondition (and (not (has-action)) (not (is-enemy ?player)))
+        :parameters ()
+        :precondition (not (has-action))
         :effect (forall
                     (?x ?y ?yn - position)
                     (when
-                        (and (at ?player ?x ?y)
+                        (and (player-at ?x ?y)
                             (dec ?y ?yn)
                             (not (wall ?x ?yn)))
-                        (and (not (at ?player ?x ?y))
-                            (at ?player ?x ?yn)
+                        (and (not (player-at ?x ?y))
+                            (player-at ?x ?yn)
                             (enemy-down)
                             (has-action)
                             (check-is-dead))
@@ -140,16 +156,16 @@
     )
 
     (:action BAIXO
-        :parameters (?player - agent)
-        :precondition (and (not (has-action)) (not (is-enemy ?player)))
+        :parameters ()
+        :precondition (not (has-action))
         :effect (forall
                     (?x ?y ?yn - position)
                     (when
-                        (and (at ?player ?x ?y)
+                        (and (player-at ?x ?y)
                             (inc ?y ?yn)
                             (not (wall ?x ?yn)))
-                        (and (not (at ?player ?x ?y))
-                            (at ?player ?x ?yn)
+                        (and (not (player-at ?x ?y))
+                            (player-at ?x ?yn)
                             (enemy-up)
                             (has-action)
                             (check-is-dead))
@@ -158,16 +174,16 @@
     )
 
     (:action DIREITA
-        :parameters (?player - agent)
-        :precondition (and (not (has-action)) (not (is-enemy ?player)))
+        :parameters ()
+        :precondition (not (has-action))
         :effect (forall
                     (?x ?y ?xn - position)
                     (when
-                        (and (at ?player ?x ?y)
+                        (and (player-at ?x ?y)
                             (inc ?x ?xn)
                             (not (wall ?xn ?y)))
-                        (and (not (at ?player ?x ?y))
-                            (at ?player ?xn ?y)
+                        (and (not (player-at ?x ?y))
+                            (player-at ?xn ?y)
                             (enemy-left)
                             (has-action)
                             (check-is-dead))
@@ -176,16 +192,16 @@
     )
 
     (:action ESQUERDA
-        :parameters (?player - agent)
-        :precondition (and (not (has-action)) (not (is-enemy ?player)))
+        :parameters ()
+        :precondition (not (has-action))
         :effect (forall
                     (?x ?y ?xn - position)
                     (when
-                        (and (at ?player ?x ?y)
+                        (and (player-at ?x ?y)
                             (dec ?x ?xn)
                             (not (wall ?xn ?y)))
-                        (and (not (at ?player ?x ?y))
-                            (at ?player ?xn ?y)
+                        (and (not (player-at ?x ?y))
+                            (player-at ?xn ?y)
                             (enemy-right)
                             (has-action)
                             (check-is-dead))
@@ -195,17 +211,17 @@
     
 
     (:action INIMIGO_DIREITA
-        :parameters (?enemy - agent)
-        :precondition (and (enemy-move) (enemy-right) (is-enemy ?enemy))
+        :parameters ()
+        :precondition (and (enemy-move) (enemy-right))
         :effect (and
             (forall
                 (?x ?y ?xn - position)
                 (when
-                    (and (at ?enemy ?x ?y)
+                    (and (enemy-at ?x ?y)
                         (inc ?x ?xn)
                         (not (wall ?xn ?y)))
-                    (and (not (at ?enemy ?x ?y))
-                        (at ?enemy ?xn ?y))
+                    (and (not (enemy-at ?x ?y))
+                        (enemy-at ?xn ?y))
                 )
             )
             (not (enemy-move))
@@ -216,17 +232,17 @@
     )
 
     (:action INIMIGO_ESQUERDA
-        :parameters (?enemy - agent)
-        :precondition (and (enemy-move) (enemy-left) (is-enemy ?enemy))
+        :parameters ()
+        :precondition (and (enemy-move) (enemy-left))
         :effect (and
             (forall
                 (?x ?y ?xn - position)
                 (when
-                    (and (at ?enemy ?x ?y)
+                    (and (enemy-at ?x ?y)
                         (dec ?x ?xn)
                         (not (wall ?xn ?y)))
-                    (and (not (at ?enemy ?x ?y))
-                         (at ?enemy ?xn ?y))
+                    (and (not (enemy-at ?x ?y))
+                         (enemy-at ?xn ?y))
                 )
             )
             (not (enemy-move))
@@ -237,17 +253,17 @@
     )
 
     (:action INIMIGO_CIMA
-        :parameters (?enemy - agent)
-        :precondition (and (enemy-move) (enemy-up) (is-enemy ?enemy))
+        :parameters ()
+        :precondition (and (enemy-move) (enemy-up))
         :effect (and
             (forall
                 (?x ?y ?yn - position)
                 (when
-                    (and (at ?enemy ?x ?y)
+                    (and (enemy-at ?x ?y)
                         (dec ?y ?yn)
                         (not (wall ?x ?yn)))
-                    (and (not (at ?enemy ?x ?y))
-                        (at ?enemy ?x ?yn))
+                    (and (not (enemy-at ?x ?y))
+                        (enemy-at ?x ?yn))
                 )
             )
             (not (enemy-move))
@@ -258,17 +274,17 @@
     )
 
     (:action INIMIGO_BAIXO
-        :parameters (?enemy - agent)
-        :precondition (and (enemy-move) (enemy-down) (is-enemy ?enemy))
+        :parameters ()
+        :precondition (and (enemy-move) (enemy-down))
         :effect (and
             (forall
                 (?x ?y ?yn - position)
                 (when
-                    (and (at ?enemy ?x ?y)
+                    (and (enemy-at ?x ?y)
                         (inc ?y ?yn)
                         (not (wall ?x ?yn)))
-                    (and (not (at ?enemy ?x ?y))
-                        (at ?enemy ?x ?yn))
+                    (and (not (enemy-at ?x ?y))
+                        (enemy-at ?x ?yn))
                 )
             )
             (not (enemy-move))

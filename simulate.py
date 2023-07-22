@@ -78,7 +78,7 @@ class World:
         elif action == A_SOLTAR_BOMBA:
             self.bomb = self.player
         elif action == A_EXPLODIR_BOMBA:
-            if self.enemy is not None and self.enemy in get_adjs(self.bomb):
+            if self.enemy is not None and (self.enemy == self.bomb or self.enemy in get_adjs(self.bomb)):
                 self.enemy = None
             self.bomb = None
         else:
@@ -116,9 +116,10 @@ class World:
         self.enemy = None
         self.bomb = None
         with open(filename) as f:
-            for line in f:
-                if not self.width:
-                    self.width = len(line) - 1
+            lines = f.read().splitlines()
+            self.width = max(len(line) for line in lines)
+
+            for line in lines:
                 index = 0
                 for i, char in enumerate(line):
                     if char == "\n":
@@ -132,6 +133,8 @@ class World:
                     else:
                         self.map_data.append(char)
                     index += 1
+                for _ in range(self.width - len(line)):
+                    self.map_data.append(" ")
                 self.height += 1
 
 
