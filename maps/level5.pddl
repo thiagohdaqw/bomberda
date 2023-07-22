@@ -10,7 +10,7 @@
             (dec y7 y6) (dec y6 y5) (dec y5 y4) (dec y4 y3) (dec y3 y2) (dec y2 y1)
             (player-at x2 y6)
             (enemy-at x2 y3) (is-enemy enemy) (has-enemy)
-            
+            (has-treasure)
             (is-zero-timer t0) (is-max-timer t3)
             (dec-timer t3 t2) (dec-timer t2 t1) (dec-timer t1 t0)
         )
@@ -18,7 +18,7 @@
             (and
                 (not (is-dead))
                 (not (has-action))
-                (win)
+                (player-at x2 y2)
             )
         )
     )
