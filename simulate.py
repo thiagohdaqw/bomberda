@@ -14,15 +14,20 @@ CONSOLE_START_Y = int(CONSOLE_START_X / 2)
 
 PLAYER = "@"
 ENEMY = "E"
+BOMB = "B"
 FLOORS = [FLOOR := " ", FRAGILE_FLOOR := "x", TREASURE := "."]
 Position = Tuple[int, int]
+
+ADJS = [(0,1),(0,-1),(1,0),(-1,0)]
+get_adjs = lambda p: map(lambda x: (p[0] + x[0], p[1] + x[1]), ADJS)
 
 ACTIONS = [
     A_UP := "CIMA",
     A_DOWN := "BAIXO",
     A_LEFT := "ESQUERDA",
     A_RIGHT := "DIREITA",
-    A_BOMBA := "SOLTARBOMBA",
+    A_SOLTAR_BOMBA := "SOLTARBOMBA",
+    A_EXPLODIR_BOMBA := "EXPLODIR_BOMBA",
 ]
 
 
@@ -43,6 +48,7 @@ class World:
     height: int
     player: Position
     enemy: Position
+    bomb: Position
 
     def __init__(self, map_filename) -> None:
         self.__init_map(map_filename)
@@ -69,8 +75,12 @@ class World:
             vel_x = -1
         elif action == A_RIGHT:
             vel_x = 1
-        elif action == A_BOMBA:
-            assert False, "Not implemented"
+        elif action == A_SOLTAR_BOMBA:
+            self.bomb = self.player
+        elif action == A_EXPLODIR_BOMBA:
+            if self.enemy is not None and self.enemy in get_adjs(self.bomb):
+                self.enemy = None
+            self.bomb = None
         else:
             assert False, "Unreachable"
 
@@ -94,6 +104,8 @@ class World:
                     yield x, y, PLAYER
                 elif self.enemy == (x, y):
                     yield x, y, ENEMY
+                elif self.bomb == (x, y):
+                    yield x, y, BOMB
                 else:
                     yield x, y, self.at(x, y)
 
@@ -102,6 +114,7 @@ class World:
         self.height = 0
         self.map_data = []
         self.enemy = None
+        self.bomb = None
         with open(filename) as f:
             for line in f:
                 if not self.width:

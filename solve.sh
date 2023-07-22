@@ -10,4 +10,4 @@ MAP_SOLUTION_PATH="$1.out"
 DOMAIN="domain.pddl"
 
 python bomberda.py $MAP_PATH
-./downward/fast-downward.py --alias lama-first $DOMAIN $MAP_PROBLEM_PATH > $MAP_SOLUTION_PATH;
+./downward/fast-downward.py --alias lama-first $DOMAIN $MAP_PROBLEM_PATH | tee $MAP_SOLUTION_PATH;

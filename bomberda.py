@@ -80,7 +80,8 @@ def generate_problem(map_path):
     output_data = f"""(define (problem bomberdaproblem)
         (:domain bomberda)
         (:objects {" ".join(positions)} - position
-                    {player_name} enemy - agent)
+                    {player_name} enemy - agent
+                    t0 t1 t2 t3 - timer)
         (:init 
             {" ".join(walls)}
             {inc_x}
@@ -89,6 +90,8 @@ def generate_problem(map_path):
             {dec_y}
             {player}
             {enemy}
+            (is-zero-timer t0) (is-max-timer t3)
+            (dec-timer t3 t2) (dec-timer t2 t1) (dec-timer t1 t0)
         )
         (:goal
             (and
