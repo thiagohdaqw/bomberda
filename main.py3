@@ -42,6 +42,8 @@ def generate_decs(len_lines, len_columns):
     return " ".join(predicates_x), " ".join(predicates_y)
 
 def generate_problem(map_path):
+    # problem_path = map_path + ".pddl" # "/tmp/mapa.pddl"
+    
     positions = []
 
     with open(map_path) as map_file:
@@ -62,6 +64,8 @@ def generate_problem(map_path):
         goal = ""
         treasure = ""
         enemy = ""
+        box = []
+        fragile_floors = []
 
         for row, line in enumerate(lines):
             for column, char in enumerate(line):
@@ -74,6 +78,10 @@ def generate_problem(map_path):
                     goal = f"(player-at x{column+1} y{row+1})"
                 elif char == MONSTER:
                     enemy = f"(enemy-at x{column+1} y{row+1}) (is-enemy enemy) (has-enemy)"
+                elif char == BOX:
+                    box.append(f"(box x{column+1} y{row+1})")
+                elif char == FRAGILE_FLOOR:
+                    fragile_floors.append(f"(unstable-floor x{column+1} y{row+1})")
 
         if not goal:
             goal = "(win)"
@@ -91,6 +99,8 @@ def generate_problem(map_path):
             {player}
             {enemy}
             {treasure}
+            {" ".join(box)}
+            {" ".join(fragile_floors)}
             (is-zero-timer t0) (is-max-timer t3)
             (dec-timer t3 t2) (dec-timer t2 t1) (dec-timer t1 t0)
         )
@@ -121,6 +131,8 @@ def generate_domain():
         (enemy-at ?x ?y - position)
         (player-at ?x ?y - position)
         (wall ?x ?y)
+        (box ?x ?y - position)
+        (unstable-floor ?x ?y - position)
         (has-enemy)
         (has-action)
         (check-is-dead)
@@ -154,81 +166,188 @@ def generate_domain():
             )
         )
     )
+
+    ; (:action EXPLODIR_BOMBA
+    ;     :parameters (?t ?n - timer)
+    ;     :precondition (and (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (is-zero-timer ?n))
+    ;     :effect (and 
+    ;                 ; (not (bomb-at ?bx ?by))
+    ;                 (not (check-bomb))
+    ;                 (not (has-bomb))
+    ;                 (check-end-turn)
+    ;                 (not (current-bomb-timer ?t))
+    ;                 (forall (?x ?y ?w - position) 
+    ;                     (and
+    ;                         (when
+    ;                             (bomb-at ?x ?y)
+    ;                             (not (bomb-at ?x ?y))
+    ;                         )
+    ;                         (when ; enemy
+    ;                             (and
+    ;                                 (bomb-at ?x ?y)
+    ;                                 (or 
+    ;                                     (enemy-at ?x ?w)
+    ;                                     (enemy-at ?w ?y)
+    ;                                     (enemy-at ?x ?y)
+    ;                                 )
+    ;                                 (or
+    ;                                     (inc ?x ?w)
+    ;                                     (inc ?y ?w)
+    ;                                     (dec ?x ?w)
+    ;                                     (dec ?y ?w)
+    ;                                 )    
+    ;                             ) 
+    ;                             (not (has-enemy))
+    ;                         )
+    ;                         (when ; player
+    ;                             (and
+    ;                                 (bomb-at ?x ?y)
+    ;                                 (or 
+    ;                                     (player-at ?x ?w)
+    ;                                     (player-at ?w ?y)
+    ;                                     (player-at ?x ?y)
+    ;                                 )
+    ;                                 (or
+    ;                                     (inc ?x ?w)
+    ;                                     (inc ?y ?w)
+    ;                                     (dec ?x ?w)
+    ;                                     (dec ?y ?w)
+    ;                                 )    
+    ;                             ) 
+    ;                             (is-dead)
+    ;                         )
+    ;                         (when ; box
+    ;                             (and 
+    ;                                 (bomb-at ?x ?y)
+    ;                                 (or
+    ;                                     (box ?x ?w)
+    ;                                     (box ?w ?y)
+    ;                                 )
+    ;                                 (or
+    ;                                     (inc ?x ?w)
+    ;                                     (inc ?y ?w)
+    ;                                     (dec ?x ?w)
+    ;                                     (dec ?y ?w)
+    ;                                 )
+    ;                             )
+    ;                             (and
+    ;                                 (not (box ?x ?w))
+    ;                                 (not (box ?w ?y))
+    ;                             )
+    ;                         )
+    ;                         (when ; unstable floor
+    ;                             (and
+    ;                                 (bomb-at ?x ?y)
+    ;                                 (unstable-floor ?x ?y)
+    ;                             )
+    ;                             (and
+    ;                                 (not (unstable-floor ?x ?y))
+    ;                                 (wall ?x ?y)
+    ;                             )    
+    ;                         )
+    ;                         (when ; unstable floor
+    ;                             (and
+    ;                                 (bomb-at ?x ?y)
+    ;                                 (unstable-floor ?x ?w)
+    ;                                 (or
+    ;                                     (inc ?x ?w)
+    ;                                     (dec ?x ?w)
+    ;                                 )
+    ;                             )
+    ;                             (and
+    ;                                 (not (unstable-floor ?x ?w))
+    ;                                 (wall ?x ?w)
+    ;                             )
+    ;                         )
+    ;                         (when ;  unstable floor
+    ;                             (and
+    ;                                 (bomb-at ?x ?y)
+    ;                                 (unstable-floor ?w ?y)
+    ;                                 (or
+    ;                                     (inc ?y ?w)
+    ;                                     (dec ?y ?w)
+    ;                                 )
+    ;                             )
+    ;                             (and
+    ;                                 (not (unstable-floor ?w ?y))
+    ;                                 (wall ?w ?y)
+    ;                             )
+    ;                         )
+    ;                     )
+    ;                 )
+    ;             )
+    ; )
     
-
-    (:action SOLTARBOMBA
-        :parameters (?px ?py - position ?t - timer)
-        :precondition (and (not (has-action)) (not (has-bomb)) (player-at ?px ?py) (is-max-timer ?t))
-        :effect (and (bomb-at ?px ?py) (current-bomb-timer ?t) (has-bomb))
-    )
-
-    (:action PASSAR_TURNO_BOMBA
-        :parameters ()
-        :precondition (and (check-bomb) (not (has-bomb)))
-        :effect (and (not (check-bomb)) (check-end-turn))
-    )
-    
-
-    (:action DECREMENTAR_TIMER_BOMBA
-        :parameters (?t ?n - timer)
-        :precondition (and (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (not (is-zero-timer ?n)))
-        :effect (and
-                    (not (check-bomb))
-                    (not (current-bomb-timer ?t))
-                    (check-end-turn)
-                    (current-bomb-timer ?n)
-                )
-    )
-
     (:action EXPLODIR_BOMBA
-        :parameters (?t ?n - timer)
-        :precondition (and (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (is-zero-timer ?n))
+        :parameters (?t ?n - timer ?x ?y - position)
+        :precondition (and (bomb-at ?x ?y) (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (is-zero-timer ?n))
         :effect (and 
-                    (not (bomb-at ?bx ?by))
-                    (not (check-bomb))
-                    (not (has-bomb))
-                    (check-end-turn)
-                    (not (current-bomb-timer ?t))
-                    (forall (?x ?y ?w - position) 
-                        (when
-                            (and
-                                (bomb-at ?x ?y)
-                                (or 
-                                    (enemy-at ?x ?w)
-                                    (enemy-at ?w ?y)
-                                    (enemy-at ?x ?y)
-                                )
-                                (or
-                                    (inc ?x ?w)
-                                    (inc ?y ?w)
-                                    (dec ?x ?w)
-                                    (dec ?y ?w)
-                                )    
-                            ) 
-                            (not (has-enemy)))
+            (not (check-bomb))
+            (not (has-bomb))
+            (check-end-turn)
+            (not (current-bomb-timer ?t))
+            (not (bomb-at ?x ?y))
+            (forall (?w - position) 
+                (when
+                    (or
+                        (inc ?x ?w)
+                        (inc ?y ?w)
+                        (dec ?x ?w)
+                        (dec ?y ?w)
                     )
-                    (forall (?x ?y ?w - position) 
-                        (when
+                    (and
+                        (when ; enemy
+                            (or
+                                (enemy-at ?x ?w)
+                                (enemy-at ?w ?y)
+                                (enemy-at ?x ?y)
+                            )
+                            (not (has-enemy))
+                        )
+                        (when ; player
+                            (or
+                                (player-at ?x ?w)
+                                (player-at ?w ?y)
+                                (player-at ?x ?y)
+                            )
+                            (is-dead)
+                        )
+                        (when ; box
+                            (or
+                                (box ?x ?w)
+                                (box ?w ?y)
+                            )
                             (and
-                                (bomb-at ?x ?y)
-                                (or 
-                                    (player-at ?x ?w)
-                                    (player-at ?w ?y)
-                                    (player-at ?x ?y)
-                                )
-                                (or
-                                    (inc ?x ?w)
-                                    (inc ?y ?w)
-                                    (dec ?x ?w)
-                                    (dec ?y ?w)
-                                )    
-                            ) 
-                            (is-dead))
+                                (not (box ?x ?w))
+                                (not (box ?w ?y))
+                            )
+                        )
+                        (when ; unstable floor
+                            (unstable-floor ?x ?y)
+                            (and
+                                (not (unstable-floor ?x ?y))
+                                (wall ?x ?y)
+                            )
+                        )
+                        (when ; unstable floor
+                            (unstable-floor ?x ?w)
+                            (and
+                                (not (unstable-floor ?x ?w))
+                                (wall ?x ?w)
+                            )
+                        )
+                        (when ;  unstable floor
+                            (unstable-floor ?w ?y)    
+                            (and
+                                (not (unstable-floor ?w ?y))
+                                (wall ?w ?y)
+                            )
+                        )
                     )
                 )
+            )
+        )
     )
-    
-    
 
     (:action CHECK_DEAD
         :parameters (?px ?py ?ex ?ey - position)
@@ -250,90 +369,153 @@ def generate_domain():
     )
 
     (:action CIMA
-        :parameters ()
-        :precondition (not (has-action))
-        :effect (forall
-                    (?x ?y ?yn - position)
-                    (when
-                        (and (player-at ?x ?y)
-                            (dec ?y ?yn)
-                            (not (wall ?x ?yn)))
-                        (and (not (player-at ?x ?y))
-                            (player-at ?x ?yn)
-                            (enemy-down)
-                            (has-action)
-                            (check-is-dead))
-                    )
+        :parameters (?x ?y ?yn - position)
+        :precondition (and 
+            (not (has-action))
+            (player-at ?x ?y)
+            (dec ?y ?yn)
+        )
+        :effect (and
+            (when 
+                (and
+                    (not (wall ?x ?yn))
+                    (not (box ?x ?yn))
                 )
+                (and
+                    (not (player-at ?x ?y))
+                    (player-at ?x ?yn)
+                    (enemy-down)
+                    (has-action)
+                    (check-is-dead)
+                )
+            )
+            (when
+                (unstable-floor ?x ?y)
+                (and
+                    (not (unstable-floor ?x ?y))
+                    (wall ?x ?y)
+                )
+            )
+        )
     )
 
     (:action BAIXO
-        :parameters ()
-        :precondition (not (has-action))
-        :effect (forall
-                    (?x ?y ?yn - position)
-                    (when
-                        (and (player-at ?x ?y)
-                            (inc ?y ?yn)
-                            (not (wall ?x ?yn)))
-                        (and (not (player-at ?x ?y))
-                            (player-at ?x ?yn)
-                            (enemy-up)
-                            (has-action)
-                            (check-is-dead))
-                    )
+        :parameters (?x ?y ?yn - position)
+        :precondition (and 
+            (not (has-action))
+            (player-at ?x ?y)
+            (inc ?y ?yn)
+        )
+        :effect (and
+            (when 
+                (and
+                    (not (wall ?x ?yn))
+                    (not (box ?x ?yn))
                 )
+                (and
+                    (not (player-at ?x ?y))
+                    (player-at ?x ?yn)
+                    (enemy-up)
+                    (has-action)
+                    (check-is-dead)
+                )
+            )
+            (when
+                (unstable-floor ?x ?y)
+                (and
+                    (not (unstable-floor ?x ?y))
+                    (wall ?x ?y)
+                )
+            )
+        )
     )
 
     (:action DIREITA
-        :parameters ()
-        :precondition (not (has-action))
-        :effect (forall
-                    (?x ?y ?xn - position)
-                    (when
-                        (and (player-at ?x ?y)
-                            (inc ?x ?xn)
-                            (not (wall ?xn ?y)))
-                        (and (not (player-at ?x ?y))
-                            (player-at ?xn ?y)
-                            (enemy-left)
-                            (has-action)
-                            (check-is-dead))
-                    )
+        :parameters (?x ?y ?xn - position)
+        :precondition (and
+            (not (has-action))
+            (player-at ?x ?y)
+            (inc ?x ?xn)
+        )
+        :effect (and
+            (when
+                (and
+                    (not (wall ?xn ?y))
+                    (not (box ?xn ?y))
                 )
+                (and
+                    (not (player-at ?x ?y))
+                    (player-at ?xn ?y)
+                    (enemy-left)
+                    (has-action)
+                    (check-is-dead)
+                )
+            )
+            (when
+                (unstable-floor ?x ?y)
+                (and
+                    (not (unstable-floor ?x ?y))
+                    (wall ?x ?y)
+                )
+            )
+        )
     )
 
     (:action ESQUERDA
-        :parameters ()
-        :precondition (not (has-action))
-        :effect (forall
-                    (?x ?y ?xn - position)
-                    (when
-                        (and (player-at ?x ?y)
-                            (dec ?x ?xn)
-                            (not (wall ?xn ?y)))
-                        (and (not (player-at ?x ?y))
-                            (player-at ?xn ?y)
-                            (enemy-right)
-                            (has-action)
-                            (check-is-dead))
-                    )
+        :parameters (?x ?y ?xn - position)
+        :precondition (and
+            (not (has-action))
+            (player-at ?x ?y)
+            (dec ?x ?xn)
+        )
+        :effect (and
+            (when
+                (and
+                    (not (wall ?xn ?y))
+                    (not (box ?xn ?y))
                 )
+                (and
+                    (not (player-at ?x ?y))
+                    (player-at ?xn ?y)
+                    (enemy-right)
+                    (has-action)
+                    (check-is-dead)
+                )
+            )
+            (when
+                (unstable-floor ?x ?y)
+                (and
+                    (not (unstable-floor ?x ?y))
+                    (wall ?x ?y)
+                )
+            )
+        )
     )
     
-
     (:action INIMIGO_DIREITA
-        :parameters ()
-        :precondition (and (enemy-move) (enemy-right))
+        :parameters (?x ?y ?xn - position)
+        :precondition (and 
+            (enemy-at ?x ?y)
+            (enemy-move)
+            (enemy-right)
+            (inc ?x ?xn)
+        )
         :effect (and
-            (forall
-                (?x ?y ?xn - position)
-                (when
-                    (and (enemy-at ?x ?y)
-                        (inc ?x ?xn)
-                        (not (wall ?xn ?y)))
-                    (and (not (enemy-at ?x ?y))
-                        (enemy-at ?xn ?y))
+            (when
+                (and
+                    (not (wall ?xn ?y))
+                    (not (box ?xn ?y))
+                )
+                (and
+                    (not (enemy-at ?x ?y))
+                    (enemy-at ?xn ?y)
+                )
+            )
+            (when
+                (unstable-floor ?x ?y)
+                (and
+                    (not (unstable-floor ?x ?y))
+                    (wall ?x ?y)
                 )
             )
             (not (enemy-move))
@@ -344,17 +526,29 @@ def generate_domain():
     )
 
     (:action INIMIGO_ESQUERDA
-        :parameters ()
-        :precondition (and (enemy-move) (enemy-left))
+        :parameters (?x ?y ?xn - position)
+        :precondition (and 
+            (enemy-at ?x ?y)
+            (enemy-move)
+            (enemy-left)
+            (dec ?x ?xn)
+        )
         :effect (and
-            (forall
-                (?x ?y ?xn - position)
-                (when
-                    (and (enemy-at ?x ?y)
-                        (dec ?x ?xn)
-                        (not (wall ?xn ?y)))
-                    (and (not (enemy-at ?x ?y))
-                         (enemy-at ?xn ?y))
+            (when
+                (and
+                    (not (wall ?xn ?y))
+                    (not (box ?xn ?y))
+                )
+                (and
+                    (not (enemy-at ?x ?y))
+                    (enemy-at ?xn ?y)
+                )
+            )
+            (when
+                (unstable-floor ?x ?y)
+                (and
+                    (not (unstable-floor ?x ?y))
+                    (wall ?x ?y)
                 )
             )
             (not (enemy-move))
@@ -365,17 +559,29 @@ def generate_domain():
     )
 
     (:action INIMIGO_CIMA
-        :parameters ()
-        :precondition (and (enemy-move) (enemy-up))
+        :parameters (?x ?y ?yn - position)
+        :precondition (and 
+            (enemy-at ?x ?y)
+            (enemy-move)
+            (enemy-up)
+            (dec ?y ?yn)
+        )
         :effect (and
-            (forall
-                (?x ?y ?yn - position)
-                (when
-                    (and (enemy-at ?x ?y)
-                        (dec ?y ?yn)
-                        (not (wall ?x ?yn)))
-                    (and (not (enemy-at ?x ?y))
-                        (enemy-at ?x ?yn))
+            (when
+                (and
+                    (not (wall ?x ?yn))
+                    (not (box ?x ?yn))
+                )
+                (and
+                    (not (enemy-at ?x ?y))
+                    (enemy-at ?x ?yn)
+                )
+            )
+            (when
+                (unstable-floor ?x ?y)
+                (and
+                    (not (unstable-floor ?x ?y))
+                    (wall ?x ?y)
                 )
             )
             (not (enemy-move))
@@ -386,17 +592,29 @@ def generate_domain():
     )
 
     (:action INIMIGO_BAIXO
-        :parameters ()
-        :precondition (and (enemy-move) (enemy-down))
+        :parameters (?x ?y ?yn - position)
+        :precondition (and 
+            (enemy-at ?x ?y)
+            (enemy-move)
+            (enemy-down)
+            (inc ?y ?yn)
+        )
         :effect (and
-            (forall
-                (?x ?y ?yn - position)
-                (when
-                    (and (enemy-at ?x ?y)
-                        (inc ?y ?yn)
-                        (not (wall ?x ?yn)))
-                    (and (not (enemy-at ?x ?y))
-                        (enemy-at ?x ?yn))
+            (when
+                (and
+                    (not (wall ?x ?yn))
+                    (not (box ?x ?yn))
+                )
+                (and
+                    (not (enemy-at ?x ?y))
+                    (enemy-at ?x ?yn)
+                )
+            )
+            (when
+                (unstable-floor ?x ?y)
+                (and
+                    (not (unstable-floor ?x ?y))
+                    (wall ?x ?y)
                 )
             )
             (not (enemy-move))
@@ -404,6 +622,29 @@ def generate_domain():
             (check-is-dead)
             (check-from-enemy)
         )
+    )
+
+    (:action SOLTARBOMBA
+        :parameters (?px ?py - position ?t - timer)
+        :precondition (and (not (has-action)) (not (has-bomb)) (player-at ?px ?py) (is-max-timer ?t))
+        :effect (and (bomb-at ?px ?py) (current-bomb-timer ?t) (has-bomb))
+    )
+
+    (:action PASSAR_TURNO_BOMBA
+        :parameters ()
+        :precondition (and (check-bomb) (not (has-bomb)))
+        :effect (and (not (check-bomb)) (check-end-turn))
+    )
+    
+    (:action DECREMENTAR_TIMER_BOMBA
+        :parameters (?t ?n - timer)
+        :precondition (and (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (not (is-zero-timer ?n)))
+        :effect (and
+                    (not (check-bomb))
+                    (not (current-bomb-timer ?t))
+                    (check-end-turn)
+                    (current-bomb-timer ?n)
+                )
     )
 )
         """)

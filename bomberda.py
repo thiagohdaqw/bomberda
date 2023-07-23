@@ -60,6 +60,8 @@ def generate_problem(map_path):
         goal = ""
         treasure = ""
         enemy = ""
+        box = []
+        fragile_floors = []
 
         for row, line in enumerate(lines):
             for column, char in enumerate(line):
@@ -72,6 +74,10 @@ def generate_problem(map_path):
                     goal = f"(player-at x{column+1} y{row+1})"
                 elif char == MONSTER:
                     enemy = f"(enemy-at x{column+1} y{row+1}) (is-enemy enemy) (has-enemy)"
+                elif char == BOX:
+                    box.append(f"(box x{column+1} y{row+1})")
+                elif char == FRAGILE_FLOOR:
+                    fragile_floors.append(f"(unstable-floor x{column+1} y{row+1})")
 
         if not goal:
             goal = "(win)"
@@ -89,6 +95,8 @@ def generate_problem(map_path):
             {player}
             {enemy}
             {treasure}
+            {" ".join(box)}
+            {" ".join(fragile_floors)}
             (is-zero-timer t0) (is-max-timer t3)
             (dec-timer t3 t2) (dec-timer t2 t1) (dec-timer t1 t0)
         )

@@ -15,6 +15,8 @@ CONSOLE_START_Y = int(CONSOLE_START_X / 2)
 PLAYER = "@"
 ENEMY = "E"
 BOMB = "B"
+BOX = "$"
+BROKEN_FLOOR = "X"
 FLOORS = [FLOOR := " ", FRAGILE_FLOOR := "x", TREASURE := "."]
 Position = Tuple[int, int]
 
@@ -80,6 +82,11 @@ class World:
         elif action == A_EXPLODIR_BOMBA:
             if self.enemy is not None and (self.enemy == self.bomb or self.enemy in get_adjs(self.bomb)):
                 self.enemy = None
+            for pos in [self.bomb, *get_adjs(self.bomb)]:
+                if self.at(pos[0], pos[1]) == FRAGILE_FLOOR:
+                    self.map_data[self.index(pos[0], pos[1])] = BROKEN_FLOOR
+                if self.at(pos[0], pos[1]) == BOX:
+                    self.map_data[self.index(pos[0], pos[1])] = FLOOR
             self.bomb = None
         else:
             assert False, "Unreachable"
@@ -89,13 +96,17 @@ class World:
                 f"Invalid action: {action}. Excepted a {FLOORS} but found `{self.at(player_x, player_y)}` in position ({player_x}, {player_y})"
             )
 
+        if self.at(player_x, player_y) == FRAGILE_FLOOR and (vel_x != 0 or vel_y != 0):
+            self.map_data[self.index(player_x, player_y)] = BROKEN_FLOOR
+
         self.player = (player_x + vel_x, player_y + vel_y)
 
         if self.enemy is not None:
             enemy_x, enemy_y = self.enemy[0] - vel_x, self.enemy[1] - vel_y
             if 0 <= enemy_x < self.width and 0 <= enemy_y < self.height and self.at(enemy_x, enemy_y) in FLOORS:
+                if self.at(self.enemy[0], self.enemy[1]) == FRAGILE_FLOOR:
+                   self.map_data[self.index(self.enemy[0], self.enemy[1])] = BROKEN_FLOOR
                 self.enemy = (enemy_x, enemy_y)
-
 
     def __iter__(self):
         for y in range(self.height):
