@@ -40,24 +40,29 @@
         :effect (and
             (not (check-end-turn))
             (not (has-action))
-            (when (and (not (has-treasure)) (not (has-enemy)))
-                (forall (?x ?y - position)
-                    (when (and (player-at ?x ?y) (enemy-at ?x ?y)) (win))
+            (when
+                (and (not (has-treasure)) (not (has-enemy)))
+                (forall
+                    (?x ?y - position)
+                    (when
+                        (and (player-at ?x ?y) (enemy-at ?x ?y))
+                        (win))
                 )
             )
         )
     )
-    
+
     (:action EXPLODIR_BOMBA
         :parameters (?t ?n - timer ?x ?y - position)
         :precondition (and (bomb-at ?x ?y) (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (is-zero-timer ?n))
-        :effect (and 
+        :effect (and
             (not (check-bomb))
             (not (has-bomb))
             (check-end-turn)
             (not (current-bomb-timer ?t))
             (not (bomb-at ?x ?y))
-            (forall (?w - position) 
+            (forall
+                (?w - position)
                 (when
                     (or
                         (inc ?x ?w)
@@ -107,7 +112,7 @@
                             )
                         )
                         (when ;  unstable floor
-                            (unstable-floor ?w ?y)    
+                            (unstable-floor ?w ?y)
                             (and
                                 (not (unstable-floor ?w ?y))
                                 (wall ?w ?y)
@@ -120,15 +125,19 @@
     )
 
     (:action CHECK_DEAD
-        :parameters (?px ?py ?ex ?ey - position)
-        :precondition (and (has-enemy) (check-is-dead) (player-at ?px ?py) (enemy-at ?ex ?ey))
+        :parameters (?px ?py - position)
+        :precondition (and (has-enemy) (check-is-dead) (player-at ?px ?py))
         :effect (and
             (when
                 (and (player-at ?px ?py) (enemy-at ?px ?py))
                 (is-dead))
             (not (check-is-dead))
-            (when (not (check-from-enemy)) (enemy-move))
-            (when (check-from-enemy) (and (not (check-from-enemy)) (check-bomb)))
+            (when
+                (not (check-from-enemy))
+                (enemy-move))
+            (when
+                (check-from-enemy)
+                (and (not (check-from-enemy)) (check-bomb)))
         )
     )
 
@@ -140,13 +149,13 @@
 
     (:action CIMA
         :parameters (?x ?y ?yn - position)
-        :precondition (and 
+        :precondition (and
             (not (has-action))
             (player-at ?x ?y)
             (dec ?y ?yn)
         )
         :effect (and
-            (when 
+            (when
                 (and
                     (not (wall ?x ?yn))
                     (not (box ?x ?yn))
@@ -171,13 +180,13 @@
 
     (:action BAIXO
         :parameters (?x ?y ?yn - position)
-        :precondition (and 
+        :precondition (and
             (not (has-action))
             (player-at ?x ?y)
             (inc ?y ?yn)
         )
         :effect (and
-            (when 
+            (when
                 (and
                     (not (wall ?x ?yn))
                     (not (box ?x ?yn))
@@ -261,10 +270,10 @@
             )
         )
     )
-    
+
     (:action INIMIGO_DIREITA
         :parameters (?x ?y ?xn - position)
-        :precondition (and 
+        :precondition (and
             (enemy-at ?x ?y)
             (enemy-move)
             (enemy-right)
@@ -297,7 +306,7 @@
 
     (:action INIMIGO_ESQUERDA
         :parameters (?x ?y ?xn - position)
-        :precondition (and 
+        :precondition (and
             (enemy-at ?x ?y)
             (enemy-move)
             (enemy-left)
@@ -330,7 +339,7 @@
 
     (:action INIMIGO_CIMA
         :parameters (?x ?y ?yn - position)
-        :precondition (and 
+        :precondition (and
             (enemy-at ?x ?y)
             (enemy-move)
             (enemy-up)
@@ -363,7 +372,7 @@
 
     (:action INIMIGO_BAIXO
         :parameters (?x ?y ?yn - position)
-        :precondition (and 
+        :precondition (and
             (enemy-at ?x ?y)
             (enemy-move)
             (enemy-down)
@@ -405,16 +414,15 @@
         :precondition (and (check-bomb) (not (has-bomb)))
         :effect (and (not (check-bomb)) (check-end-turn))
     )
-    
 
     (:action DECREMENTAR_TIMER_BOMBA
         :parameters (?t ?n - timer)
         :precondition (and (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (not (is-zero-timer ?n)))
         :effect (and
-                    (not (check-bomb))
-                    (not (current-bomb-timer ?t))
-                    (check-end-turn)
-                    (current-bomb-timer ?n)
-                )
+            (not (check-bomb))
+            (not (current-bomb-timer ?t))
+            (check-end-turn)
+            (current-bomb-timer ?n)
+        )
     )
 )

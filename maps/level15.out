@@ -1,0 +1,309 @@
+INFO     planner time limit: None
+INFO     planner memory limit: None
+
+INFO     Running translator.
+INFO     translator stdin: None
+INFO     translator time limit: None
+INFO     translator memory limit: None
+INFO     translator command line string: /usr/bin/python3 /home/thiago/unb/2023.1/tees-sat/bomberda/downward/builds/release/bin/translate/translate.py domain.pddl maps/level15.pddl --sas-file output.sas
+Parsing...
+Parsing: [0.000s CPU, 0.002s wall-clock]
+Normalizing task... [0.000s CPU, 0.001s wall-clock]
+Instantiating...
+Generating Datalog program... [0.000s CPU, 0.000s wall-clock]
+Normalizing Datalog program...
+Normalizing Datalog program: [0.010s CPU, 0.003s wall-clock]
+Preparing model... [0.000s CPU, 0.001s wall-clock]
+Generated 204 rules.
+Computing model... [0.010s CPU, 0.015s wall-clock]
+466 relevant atoms
+2217 auxiliary atoms
+2683 final queue length
+22504 total queue pushes
+Completing instantiation... [0.070s CPU, 0.068s wall-clock]
+Instantiating: [0.090s CPU, 0.088s wall-clock]
+Computing fact groups...
+Finding invariants...
+34 initial candidates
+Finding invariants: [0.010s CPU, 0.013s wall-clock]
+Checking invariant weight... [0.000s CPU, 0.000s wall-clock]
+Instantiating groups... [0.000s CPU, 0.000s wall-clock]
+Collecting mutex groups... [0.000s CPU, 0.000s wall-clock]
+Choosing groups...
+132 uncovered facts
+Choosing groups: [0.000s CPU, 0.000s wall-clock]
+Building translation key... [0.010s CPU, 0.000s wall-clock]
+Computing fact groups: [0.020s CPU, 0.014s wall-clock]
+Building STRIPS to SAS dictionary... [0.000s CPU, 0.000s wall-clock]
+Building dictionary for full mutex groups... [0.000s CPU, 0.000s wall-clock]
+Building mutex information...
+Building mutex information: [0.000s CPU, 0.000s wall-clock]
+Translating task...
+Processing axioms...
+Simplifying axioms... [0.000s CPU, 0.000s wall-clock]
+Translator axioms removed by simplifying: 0
+Computing negative axioms... [0.000s CPU, 0.000s wall-clock]
+Processing axioms: [0.000s CPU, 0.001s wall-clock]
+Translating task: [0.010s CPU, 0.010s wall-clock]
+356 effect conditions simplified
+0 implied preconditions added
+Detecting unreachable propositions...
+76 operators removed
+0 axioms removed
+50 propositions removed
+Detecting unreachable propositions: [0.000s CPU, 0.003s wall-clock]
+Reordering and filtering variables...
+103 of 107 variables necessary.
+0 of 0 mutex groups necessary.
+171 of 171 operators necessary.
+0 of 0 axiom rules necessary.
+Reordering and filtering variables: [0.000s CPU, 0.002s wall-clock]
+Translator variables: 103
+Translator derived variables: 0
+Translator facts: 206
+Translator goal facts: 3
+Translator mutex groups: 0
+Translator total mutex groups size: 0
+Translator operators: 171
+Translator axioms: 0
+Translator task size: 2112
+Translator peak memory: 33660 KB
+Writing output... [0.000s CPU, 0.001s wall-clock]
+Done! [0.120s CPU, 0.123s wall-clock]
+translate exit code: 0
+
+INFO     Running search (release).
+INFO     search stdin: output.sas
+INFO     search time limit: 300s
+INFO     search memory limit: None
+INFO     search command line string: /home/thiago/unb/2023.1/tees-sat/bomberda/downward/builds/release/bin/downward --search 'let(hlm,landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(one),pref=false),let(hff,ff(transform=adapt_costs(one)),lazy_greedy([hff,hlm],preferred=[hff,hlm],cost_type=one,reopen_closed=false)))' --internal-plan-file sas_plan < output.sas
+[t=0s, 11472 KB] reading input...
+[t=0s, 11472 KB] done reading input!
+[t=0.00254088s, 11860 KB] Initializing landmark sum heuristic...
+[t=0.00254088s, 11860 KB] Generating landmark graph...
+[t=0.00254088s, 11860 KB] Building a landmark graph with reasonable orders.
+[t=0.00254088s, 11860 KB] Initializing Exploration...
+[t=0.00254088s, 11860 KB] Generating landmarks using the RPG/SAS+ approach
+[t=0.00254088s, 11860 KB] Removed 0 reasonable or obedient reasonable orders
+[t=0.00254088s, 11860 KB] Landmarks generation time: 0s
+[t=0.00254088s, 11860 KB] Discovered 15 landmarks, of which 0 are disjunctive and 0 are conjunctive.
+[t=0.00254088s, 11860 KB] 28 edges
+[t=0.00254088s, 11860 KB] approx. reasonable orders
+[t=0.00254088s, 11860 KB] approx. obedient reasonable orders
+[t=0.00254088s, 11860 KB] Removed 0 reasonable or obedient reasonable orders
+[t=0.00254088s, 11860 KB] Landmarks generation time: 0s
+[t=0.00254088s, 11860 KB] Discovered 15 landmarks, of which 0 are disjunctive and 0 are conjunctive.
+[t=0.00254088s, 11860 KB] 28 edges
+[t=0.00254088s, 11860 KB] Landmark graph generation time: 0s
+[t=0.00254088s, 11860 KB] Landmark graph contains 15 landmarks, of which 0 are disjunctive and 0 are conjunctive.
+[t=0.00254088s, 11860 KB] Landmark graph contains 28 orderings.
+[t=0.00254088s, 11860 KB] Simplifying 891 unary operators... done! [795 unary operators]
+[t=0.00254088s, 11860 KB] time to simplify: 0s
+[t=0.00254088s, 11860 KB] Initializing additive heuristic...
+[t=0.00254088s, 11860 KB] Initializing FF heuristic...
+[t=0.00254088s, 11860 KB] Building successor generator...done!
+[t=0.00254088s, 11860 KB] peak memory difference for successor generator creation: 0 KB
+[t=0.00254088s, 11860 KB] time for successor generation creation: 0s
+[t=0.00254088s, 11860 KB] Variables: 103
+[t=0.00254088s, 11860 KB] FactPairs: 206
+[t=0.00254088s, 11860 KB] Bytes per state: 16
+[t=0.00254088s, 11860 KB] Conducting lazy best first search, (real) bound = 2147483647
+[t=0.00254088s, 11860 KB] 9 initial landmarks, 3 goal landmarks
+[t=0.00254088s, 11992 KB] New best heuristic value for landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(one),pref=false): 6
+[t=0.00254088s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 19
+[t=0.00254088s, 11992 KB] g=0, 1 evaluated, 0 expanded
+[t=0.00254088s, 11992 KB] Initial heuristic value for landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(one),pref=false): 6
+[t=0.00254088s, 11992 KB] Initial heuristic value for ff(transform=adapt_costs(one)): 19
+[t=0.00254088s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 18
+[t=0.00254088s, 11992 KB] g=1, 4 evaluated, 3 expanded
+[t=0.00254088s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 17
+[t=0.00254088s, 11992 KB] g=2, 5 evaluated, 4 expanded
+[t=0.00254088s, 11992 KB] New best heuristic value for landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(one),pref=false): 5
+[t=0.00254088s, 11992 KB] g=4, 8 evaluated, 7 expanded
+[t=0.00254088s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 16
+[t=0.00254088s, 11992 KB] g=5, 9 evaluated, 8 expanded
+[t=0.00254088s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 15
+[t=0.00254088s, 11992 KB] g=10, 18 evaluated, 17 expanded
+[t=0.00254088s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 14
+[t=0.00254088s, 11992 KB] g=11, 19 evaluated, 18 expanded
+[t=0.00254088s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 13
+[t=0.00254088s, 11992 KB] g=28, 82 evaluated, 77 expanded
+[t=0.00254088s, 11992 KB] New best heuristic value for landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(one),pref=false): 4
+[t=0.00254088s, 11992 KB] g=34, 93 evaluated, 87 expanded
+[t=0.00254088s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 12
+[t=0.00254088s, 11992 KB] g=40, 101 evaluated, 95 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 11
+[t=0.00586637s, 11992 KB] g=41, 103 evaluated, 97 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 10
+[t=0.00586637s, 11992 KB] g=58, 141 evaluated, 133 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(one),pref=false): 3
+[t=0.00586637s, 11992 KB] g=64, 153 evaluated, 144 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 9
+[t=0.00586637s, 11992 KB] g=70, 161 evaluated, 152 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 8
+[t=0.00586637s, 11992 KB] g=71, 163 evaluated, 154 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 7
+[t=0.00586637s, 11992 KB] g=88, 203 evaluated, 192 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(one),pref=false): 2
+[t=0.00586637s, 11992 KB] g=94, 214 evaluated, 203 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 6
+[t=0.00586637s, 11992 KB] g=99, 221 evaluated, 210 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 5
+[t=0.00586637s, 11992 KB] g=101, 224 evaluated, 213 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 4
+[t=0.00586637s, 11992 KB] g=111, 464 evaluated, 444 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 3
+[t=0.00586637s, 11992 KB] g=115, 468 evaluated, 448 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 2
+[t=0.00586637s, 11992 KB] g=119, 472 evaluated, 452 expanded
+[t=0.00586637s, 11992 KB] New best heuristic value for landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(one),pref=false): 1
+[t=0.00586637s, 11992 KB] New best heuristic value for ff(transform=adapt_costs(one)): 1
+[t=0.00586637s, 11992 KB] g=123, 476 evaluated, 456 expanded
+[t=0.00586637s, 11992 KB] Solution found!
+[t=0.00586637s, 11992 KB] Actual search time: 0.00332549s
+direita x2 y4 x3 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+soltarbomba x3 y4 t3 (1)
+esquerda x3 y4 x2 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t3 t2 (1)
+finalizar_turno  (1)
+cima x2 y4 y3 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t2 t1 (1)
+finalizar_turno  (1)
+cima x2 y3 y2 (1)
+check_dead_without_enemy  (1)
+explodir_bomba t1 t0 x3 y4 (1)
+finalizar_turno  (1)
+soltarbomba x2 y2 t3 (1)
+baixo x2 y2 y3 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t3 t2 (1)
+finalizar_turno  (1)
+baixo x2 y3 y4 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t2 t1 (1)
+finalizar_turno  (1)
+direita x2 y4 x3 (1)
+check_dead_without_enemy  (1)
+explodir_bomba t1 t0 x2 y2 (1)
+finalizar_turno  (1)
+direita x3 y4 x4 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+soltarbomba x4 y4 t3 (1)
+esquerda x4 y4 x3 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t3 t2 (1)
+finalizar_turno  (1)
+esquerda x3 y4 x2 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t2 t1 (1)
+finalizar_turno  (1)
+cima x2 y4 y3 (1)
+check_dead_without_enemy  (1)
+explodir_bomba t1 t0 x4 y4 (1)
+finalizar_turno  (1)
+soltarbomba x2 y3 t3 (1)
+baixo x2 y3 y4 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t3 t2 (1)
+finalizar_turno  (1)
+direita x2 y4 x3 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t2 t1 (1)
+finalizar_turno  (1)
+direita x3 y4 x4 (1)
+check_dead_without_enemy  (1)
+explodir_bomba t1 t0 x2 y3 (1)
+finalizar_turno  (1)
+direita x4 y4 x5 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+soltarbomba x5 y4 t3 (1)
+esquerda x5 y4 x4 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t3 t2 (1)
+finalizar_turno  (1)
+esquerda x4 y4 x3 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t2 t1 (1)
+finalizar_turno  (1)
+esquerda x3 y4 x2 (1)
+check_dead_without_enemy  (1)
+explodir_bomba t1 t0 x5 y4 (1)
+finalizar_turno  (1)
+soltarbomba x2 y4 t3 (1)
+direita x2 y4 x3 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t3 t2 (1)
+finalizar_turno  (1)
+direita x3 y4 x4 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t2 t1 (1)
+finalizar_turno  (1)
+direita x4 y4 x5 (1)
+check_dead_without_enemy  (1)
+explodir_bomba t1 t0 x2 y4 (1)
+finalizar_turno  (1)
+direita x5 y4 x6 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+soltarbomba x6 y4 t3 (1)
+esquerda x6 y4 x5 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t3 t2 (1)
+finalizar_turno  (1)
+esquerda x5 y4 x4 (1)
+check_dead_without_enemy  (1)
+decrementar_timer_bomba t2 t1 (1)
+finalizar_turno  (1)
+esquerda x4 y4 x3 (1)
+check_dead_without_enemy  (1)
+explodir_bomba t1 t0 x6 y4 (1)
+finalizar_turno  (1)
+direita x3 y4 x4 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+direita x4 y4 x5 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+direita x5 y4 x6 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+direita x6 y4 x7 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+direita x7 y4 x8 (1)
+check_dead_without_enemy  (1)
+passar_turno_bomba  (1)
+finalizar_turno  (1)
+[t=0.00586637s, 11992 KB] Plan length: 127 step(s).
+[t=0.00586637s, 11992 KB] Plan cost: 127
+[t=0.00586637s, 11992 KB] Expanded 460 state(s).
+[t=0.00586637s, 11992 KB] Reopened 0 state(s).
+[t=0.00586637s, 11992 KB] Evaluated 480 state(s).
+[t=0.00586637s, 11992 KB] Evaluations: 941
+[t=0.00586637s, 11992 KB] Generated 591 state(s).
+[t=0.00586637s, 11992 KB] Dead ends: 19 state(s).
+[t=0.00586637s, 11992 KB] Number of registered states: 480
+[t=0.00586637s, 11992 KB] Int hash set load factor: 480/512 = 0.9375
+[t=0.00586637s, 11992 KB] Int hash set resizes: 9
+[t=0.00586637s, 11992 KB] Search time: 0.00332549s
+[t=0.00586637s, 11992 KB] Total time: 0.00586637s
+Solution found.
+Peak memory: 11992 KB
+Remove intermediate file output.sas
+search exit code: 0
+
+INFO     Planner time: 0.16s

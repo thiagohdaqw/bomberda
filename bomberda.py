@@ -86,7 +86,7 @@ def generate_problem(map_path):
                 elif char == FRAGILE_FLOOR:
                     fragile_floors.append(f"(unstable-floor x{column+1} y{row+1})")
 
-    with open(PROBLEM_PATH, 'w') as problem_file:
+    with open(problem_path, 'w') as problem_file:
         problem_file.write(f"""
             (define (problem bomberdaproblem)
                 (:domain bomberda)
