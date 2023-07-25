@@ -11,6 +11,10 @@ TREASURE = "."
 MONSTER = "E"
 POSITION = "position"
 
+SOLVER = ""
+PROBLEM_PATH = ""
+DOMAIN_PATH = ""
+
 def generate_eqs(len_lines, len_columns):
     predicates = []
     for i in range(1, len_columns):
@@ -38,8 +42,11 @@ def generate_decs(len_lines, len_columns):
     return " ".join(predicates_x), " ".join(predicates_y)
 
 def generate_problem(map_path):
-    problem_path = map_path + ".pddl" # "/tmp/mapa.pddl"
-    
+    if not PROBLEM_PATH:
+        problem_path = map_path + ".pddl"
+    else:
+        problem_path = PROBLEM_PATH
+
     positions = []
 
     with open(map_path) as map_file:
@@ -79,42 +86,50 @@ def generate_problem(map_path):
                 elif char == FRAGILE_FLOOR:
                     fragile_floors.append(f"(unstable-floor x{column+1} y{row+1})")
 
-        if not goal:
-            goal = "(win)"
-
-    output_data = f"""(define (problem bomberdaproblem)
-        (:domain bomberda)
-        (:objects {" ".join(positions)} - position
-                    t0 t1 t2 t3 - timer)
-        (:init 
-            {" ".join(walls)}
-            {inc_x}
-            {inc_y}
-            {dec_x}
-            {dec_y}
-            {player}
-            {enemy}
-            {treasure}
-            {" ".join(box)}
-            {" ".join(fragile_floors)}
-            (is-zero-timer t0) (is-max-timer t3)
-            (dec-timer t3 t2) (dec-timer t2 t1) (dec-timer t1 t0)
-        )
-        (:goal
-            (and
-                (not (is-dead))
-                (not (has-action))
-                {goal}
+    with open(PROBLEM_PATH, 'w') as problem_file:
+        problem_file.write(f"""
+            (define (problem bomberdaproblem)
+                (:domain bomberda)
+                (:objects {" ".join(positions)} - position
+                            t0 t1 t2 t3 - timer)
+                (:init 
+                    {" ".join(walls)}
+                    {inc_x}
+                    {inc_y}
+                    {dec_x}
+                    {dec_y}
+                    {player}
+                    {enemy}
+                    {treasure}
+                    {" ".join(box)}
+                    {" ".join(fragile_floors)}
+                    {"(has-box)" if box else ""}
+                    (is-zero-timer t0) (is-max-timer t3)
+                    (dec-timer t3 t2) (dec-timer t2 t1) (dec-timer t1 t0)
+                )
+                (:goal
+                    (and
+                        (not (is-dead))
+                        (not (has-action))
+                        {"(win)" if not goal else goal}
+                    )
+                )
             )
-        )
-    )
-    """
+            """)
 
-    with open(problem_path, 'w') as problem_file:
-        problem_file.write(output_data)
+def generate_domain():
+    if not DOMAIN_PATH:
+        return
+    
+    with open(DOMAIN_PATH, "w") as domain:
+        domain.write("""
+; <include_domain>
+        """)
 
 def main():
+    generate_domain()
     generate_problem(sys.argv[1])
+    print(SOLVER)
 
 
 if __name__ == "__main__":

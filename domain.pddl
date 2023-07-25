@@ -31,6 +31,7 @@
         (has-treasure)
         (win)
         (check-end-turn)
+        (has-box)
     )
 
     (:action FINALIZAR_TURNO
@@ -39,122 +40,13 @@
         :effect (and
             (not (check-end-turn))
             (not (has-action))
-            (forall (?x ?y - position)
-                (when (and (not (has-treasure)) (not (has-enemy)) (player-at ?x ?y) (enemy-at ?x ?y)) (win))
+            (when (and (not (has-treasure)) (not (has-enemy)))
+                (forall (?x ?y - position)
+                    (when (and (player-at ?x ?y) (enemy-at ?x ?y)) (win))
+                )
             )
         )
     )
-
-    ; (:action EXPLODIR_BOMBA
-    ;     :parameters (?t ?n - timer)
-    ;     :precondition (and (check-bomb) (has-bomb) (current-bomb-timer ?t) (dec-timer ?t ?n) (is-zero-timer ?n))
-    ;     :effect (and 
-    ;                 ; (not (bomb-at ?bx ?by))
-    ;                 (not (check-bomb))
-    ;                 (not (has-bomb))
-    ;                 (check-end-turn)
-    ;                 (not (current-bomb-timer ?t))
-    ;                 (forall (?x ?y ?w - position) 
-    ;                     (and
-    ;                         (when
-    ;                             (bomb-at ?x ?y)
-    ;                             (not (bomb-at ?x ?y))
-    ;                         )
-    ;                         (when ; enemy
-    ;                             (and
-    ;                                 (bomb-at ?x ?y)
-    ;                                 (or 
-    ;                                     (enemy-at ?x ?w)
-    ;                                     (enemy-at ?w ?y)
-    ;                                     (enemy-at ?x ?y)
-    ;                                 )
-    ;                                 (or
-    ;                                     (inc ?x ?w)
-    ;                                     (inc ?y ?w)
-    ;                                     (dec ?x ?w)
-    ;                                     (dec ?y ?w)
-    ;                                 )    
-    ;                             ) 
-    ;                             (not (has-enemy))
-    ;                         )
-    ;                         (when ; player
-    ;                             (and
-    ;                                 (bomb-at ?x ?y)
-    ;                                 (or 
-    ;                                     (player-at ?x ?w)
-    ;                                     (player-at ?w ?y)
-    ;                                     (player-at ?x ?y)
-    ;                                 )
-    ;                                 (or
-    ;                                     (inc ?x ?w)
-    ;                                     (inc ?y ?w)
-    ;                                     (dec ?x ?w)
-    ;                                     (dec ?y ?w)
-    ;                                 )    
-    ;                             ) 
-    ;                             (is-dead)
-    ;                         )
-    ;                         (when ; box
-    ;                             (and 
-    ;                                 (bomb-at ?x ?y)
-    ;                                 (or
-    ;                                     (box ?x ?w)
-    ;                                     (box ?w ?y)
-    ;                                 )
-    ;                                 (or
-    ;                                     (inc ?x ?w)
-    ;                                     (inc ?y ?w)
-    ;                                     (dec ?x ?w)
-    ;                                     (dec ?y ?w)
-    ;                                 )
-    ;                             )
-    ;                             (and
-    ;                                 (not (box ?x ?w))
-    ;                                 (not (box ?w ?y))
-    ;                             )
-    ;                         )
-    ;                         (when ; unstable floor
-    ;                             (and
-    ;                                 (bomb-at ?x ?y)
-    ;                                 (unstable-floor ?x ?y)
-    ;                             )
-    ;                             (and
-    ;                                 (not (unstable-floor ?x ?y))
-    ;                                 (wall ?x ?y)
-    ;                             )    
-    ;                         )
-    ;                         (when ; unstable floor
-    ;                             (and
-    ;                                 (bomb-at ?x ?y)
-    ;                                 (unstable-floor ?x ?w)
-    ;                                 (or
-    ;                                     (inc ?x ?w)
-    ;                                     (dec ?x ?w)
-    ;                                 )
-    ;                             )
-    ;                             (and
-    ;                                 (not (unstable-floor ?x ?w))
-    ;                                 (wall ?x ?w)
-    ;                             )
-    ;                         )
-    ;                         (when ;  unstable floor
-    ;                             (and
-    ;                                 (bomb-at ?x ?y)
-    ;                                 (unstable-floor ?w ?y)
-    ;                                 (or
-    ;                                     (inc ?y ?w)
-    ;                                     (dec ?y ?w)
-    ;                                 )
-    ;                             )
-    ;                             (and
-    ;                                 (not (unstable-floor ?w ?y))
-    ;                                 (wall ?w ?y)
-    ;                             )
-    ;                         )
-    ;                     )
-    ;                 )
-    ;             )
-    ; )
     
     (:action EXPLODIR_BOMBA
         :parameters (?t ?n - timer ?x ?y - position)
@@ -504,7 +396,7 @@
 
     (:action SOLTARBOMBA
         :parameters (?px ?py - position ?t - timer)
-        :precondition (and (not (has-action)) (not (has-bomb)) (player-at ?px ?py) (is-max-timer ?t))
+        :precondition (and (not (has-action)) (not (has-bomb)) (player-at ?px ?py) (is-max-timer ?t) (or (has-box) (has-enemy)))
         :effect (and (bomb-at ?px ?py) (current-bomb-timer ?t) (has-bomb))
     )
 
